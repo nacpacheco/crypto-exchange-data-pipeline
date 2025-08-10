@@ -80,7 +80,7 @@ def get_market_30day_volume(execution_date):
 with DAG(
     dag_id="crypto_ingestion",
     start_date=datetime(2025, 8, 1),
-    schedule_interval="@daily",
+    schedule="@daily",
     catchup=False,
 ) as dag:
     t1 = PythonOperator(

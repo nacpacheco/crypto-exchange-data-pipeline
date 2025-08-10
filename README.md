@@ -1,7 +1,8 @@
 # Crypto Data Pipeline
 
 This project ingests, processes, and analyzes cryptocurrency exchange and market data from 
-coingecko API using Apache Airflow and Jupyter Notebook.
+[Coingecko API](https://docs.coingecko.com/v3.0.1/reference/introduction) using Apache Airflow and Jupyter Notebook
+on Docker.
 
 ## Prerequisites
 
@@ -12,14 +13,14 @@ coingecko API using Apache Airflow and Jupyter Notebook.
 
 ![crypto_pipeline_arch.png](crypto_pipeline_arch.png)
 
-Components:
+**Components**:
 
 * **CoinGecko API** – Public data source for exchanges, markets, and volumes.
 * **Airflow DAGs** – Orchestrates data ingestion and processing.
   * **crypto_ingestion**: Fetches raw JSON data from the API.
   * **crypto_processing**: Cleans and transforms raw data into Parquet format.
-* **Local File Storage** – Stores both raw and processed datasets, partitioned by ingestion date.
-* **Jupyter Notebook** – Collects processed Parquet data for insights and visualizations.
+* **Local Storage** – Stores both raw and processed datasets, partitioned by ingestion date.
+* **Jupyter Notebook for Analysis** – Collects processed Parquet data for insights and visualizations.
 
 ## Setup
 
@@ -62,13 +63,27 @@ The Airflow DAGs code are located in the `dags/` directory.
      - The `crypto_processing` DAG will be triggered by the completion of the `crypto_ingestion` DAG
      - You can also check the logs of each task to monitor the execution and debug any issues.
 
-## Analysis
+## Performing Analysis
 After the DAGs have run and data has been ingested and processed, you can use the **Jupyter notebooks** to explore and analyze the data.
 
 Accessing the Jupyter UI at http://localhost:8888/lab?token=admintoken you can check the notebook located in the `work/` directory on the Jupyter interface,
 this corresponds to the `analysis/` directory in the project root.
+   - The notebook for this project `crypto_data_analysis.ipynb` contains code for data exploration and analysis.
    - You can explore the data and perform analysis using the provided notebook
-   - The main notebook for this project is `crypto_data_analysis.ipynb`, which contains code for data exploration and analysis.
    - You can run the cells in the notebook to see the results and visualize the data.
 
+## Running Tests
+To run the unit tests for the DAGs, you can follow these steps:
+
+1. Create a virtual environment (optional but recommended) with the dependencies defined in `requirements.txt`:
+```bash
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+```
+
+2. Run the tests using pytest:
+```bash
+    python -m pytest tests/
+```
 
