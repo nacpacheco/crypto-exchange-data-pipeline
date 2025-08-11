@@ -71,7 +71,7 @@ def process_market_30day_volume(execution_date):
         market_id = item["market_id"]
         for timestamp, volume in item["market_chart"]["total_volumes"]:
             records.append({
-                "marked_id": market_id,
+                "market_id": market_id,
                 "timestamp": str(pd.to_datetime(timestamp, unit='ms')),
                 "volume": float(volume)
             })
