@@ -72,6 +72,14 @@ this corresponds to the `analysis/` directory in the project root.
    - You can explore the data and perform analysis using the provided notebook
    - You can run the cells in the notebook to see the results and visualize the data.
 
+**Note:**
+Data shown here takes into consideration a sample of 2025-08-10 ingestion and using the following markets as linking markets with Bitso:
+* XRP/USD
+* BTC/USD
+* ETH/USD
+
+It also considers the first 50 exchanges from the Coingecko API.
+
 ## Running Tests
 To run the unit tests for the DAGs, you can follow these steps:
 

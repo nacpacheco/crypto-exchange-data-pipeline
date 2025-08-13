@@ -91,23 +91,23 @@ with DAG(
     t1 = PythonOperator(
         task_id="generate_exchanges_table",
         python_callable=process_exchange_table,
-        op_kwargs={"execution_date": "{{ ds }}"}
+        op_kwargs={"execution_date": "{{ macros.ds_add(ds, -1) }}"}
     )
 
     t2 = PythonOperator(
         task_id="generate_shared_markets_table",
         python_callable=process_shared_markets_table,
-        op_kwargs={"execution_date": "{{ ds }}"}
+        op_kwargs={"execution_date": "{{ macros.ds_add(ds, -1) }}"}
     )
 
     t3 = PythonOperator(
         task_id="generate_exchange_30day_volume_table",
         python_callable=process_exchange_30day_volume,
-        op_kwargs={"execution_date": "{{ ds }}"}
+        op_kwargs={"execution_date": "{{ macros.ds_add(ds, -1) }}"}
     )
 
     t4 = PythonOperator(
         task_id="generate_market_30day_volume_table",
         python_callable=process_market_30day_volume,
-        op_kwargs={"execution_date": "{{ ds }}"}
+        op_kwargs={"execution_date": "{{ macros.ds_add(ds, -1) }}"}
     )
