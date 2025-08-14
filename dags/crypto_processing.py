@@ -1,6 +1,6 @@
 import json
 import os
-
+import logging
 import pandas as pd
 from airflow import DAG, Dataset
 from airflow.operators.python import PythonOperator
@@ -10,7 +10,16 @@ RAW_OUTPUT_PATH = "/opt/airflow/data/crypto_ingestion/raw"
 PROCESSED_OUTPUT_PATH = "/opt/airflow/data/crypto_ingestion/processed"
 
 def process_exchange_table(execution_date):
-    with open(f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}/exchanges.json") as f:
+    """
+    Process the exchanges table from raw JSON data and save it as a Parquet file.
+    :param execution_date: The date of execution, used for partitioning data.
+    :return: None
+    """
+    source_path = f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}/exchanges.json"
+    output_path = f"{PROCESSED_OUTPUT_PATH}/exchanges/date={execution_date}/"
+
+    logging.info(f"Fetching raw data for exchanges at {source_path}")
+    with open(source_path) as f:
         exchanges = json.load(f)
 
     df_exchanges = pd.DataFrame([{
@@ -21,14 +30,17 @@ def process_exchange_table(execution_date):
         "trust_score": int(exchange.get("trust_score")),
         "trust_score_rank": int(exchange.get("trust_score_rank"))
     } for exchange in exchanges])
-    print(df_exchanges)
 
-    os.makedirs(f"{PROCESSED_OUTPUT_PATH}/exchanges/date={execution_date}", exist_ok=True)
-    df_exchanges.to_parquet(f"{PROCESSED_OUTPUT_PATH}/exchanges/date={execution_date}/data.parquet")
+    logging.info(f"Saving processed data for exchanges at {output_path}")
+    os.makedirs(output_path, exist_ok=True)
+    df_exchanges.to_parquet(f"{output_path}/data.parquet")
 
 
 def process_shared_markets_table(execution_date):
-    with open(f"{RAW_OUTPUT_PATH}/shared_markets/date_ingested={execution_date}/shared_markets.json") as f:
+    source_path = f"{RAW_OUTPUT_PATH}/shared_markets/date_ingested={execution_date}/shared_markets.json"
+    output_path = f"{PROCESSED_OUTPUT_PATH}/shared_markets/date={execution_date}/"
+    logging.info(f"Fetching raw data for shared markets at {source_path}")
+    with open(source_path) as f:
         shared_markets = json.load(f)
 
     df_shared_markets = pd.DataFrame([{
@@ -38,13 +50,16 @@ def process_shared_markets_table(execution_date):
         "target": ticker["target"],
         "name": f"{ticker['base']}/{ticker['target']}"
     } for ticker in shared_markets])
-    print(df_shared_markets)
 
-    os.makedirs(f"{PROCESSED_OUTPUT_PATH}/shared_markets/date={execution_date}", exist_ok=True)
-    df_shared_markets.to_parquet(f"{PROCESSED_OUTPUT_PATH}/shared_markets/date={execution_date}/data.parquet")
+    logging.info(f"Saving processed data for shared markets at {output_path}")
+    os.makedirs(output_path, exist_ok=True)
+    df_shared_markets.to_parquet(f"{output_path}/data.parquet")
 
 def process_exchange_30day_volume(execution_date):
-    with open(f"{RAW_OUTPUT_PATH}/exchange_30day_volume/date_ingested={execution_date}/exchange_30day_volume.json") as f:
+    source_path = f"{RAW_OUTPUT_PATH}/exchange_30day_volume/date_ingested={execution_date}/exchange_30day_volume.json"
+    output_path = f"{PROCESSED_OUTPUT_PATH}/exchange_30day_volume/date={execution_date}/"
+    logging.info(f"Fetching raw data for exchange 30-day volume at {source_path}")
+    with open(source_path) as f:
         exchange_volumes = json.load(f)
     records = []
     for item in exchange_volumes:
@@ -57,13 +72,15 @@ def process_exchange_30day_volume(execution_date):
             })
 
     df_exchange_volume = pd.DataFrame(records)
-    print(df_exchange_volume)
-
-    os.makedirs(f"{PROCESSED_OUTPUT_PATH}/exchange_30day_volume/date={execution_date}", exist_ok=True)
-    df_exchange_volume.to_parquet(f"{PROCESSED_OUTPUT_PATH}/exchange_30day_volume/date={execution_date}/data.parquet")
+    logging.info(f"Saving processed data for exchange 30-day volume at {output_path}")
+    os.makedirs(output_path, exist_ok=True)
+    df_exchange_volume.to_parquet(f"{output_path}/data.parquet")
 
 def process_market_30day_volume(execution_date):
-    with open(f"{RAW_OUTPUT_PATH}/market_30day_volume/date_ingested={execution_date}/market_30day_volume.json") as f:
+    source_path = f"{RAW_OUTPUT_PATH}/market_30day_volume/date_ingested={execution_date}/market_30day_volume.json"
+    output_path = f"{PROCESSED_OUTPUT_PATH}/market_30day_volume/date={execution_date}/"
+    logging.info(f"Fetching raw data for market 30-day volume at {source_path}")
+    with open(source_path) as f:
         market_volumes = json.load(f)
 
     records = []
@@ -76,11 +93,10 @@ def process_market_30day_volume(execution_date):
                 "volume": float(volume)
             })
 
-    os.makedirs(f"{PROCESSED_OUTPUT_PATH}/market_30day_volume/date={execution_date}", exist_ok=True)
     df_market_volume = pd.DataFrame(records)
-    print(df_market_volume)
-    df_market_volume.to_parquet(f"{PROCESSED_OUTPUT_PATH}/market_30day_volume/date={execution_date}/data.parquet")
-
+    logging.info(f"Saving processed data for market 30-day volume at {output_path}")
+    os.makedirs(output_path, exist_ok=True)
+    df_market_volume.to_parquet(f"{output_path}/data.parquet")
 
 with DAG(
     dag_id="crypto_processing",
