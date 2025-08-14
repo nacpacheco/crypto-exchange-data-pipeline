@@ -18,19 +18,31 @@ API_HEADERS = {
 }
 
 def get_exchanges(execution_date):
+    """
+    Fetches a list of 50 exchanges from the CoinGecko API and saves it to a JSON file.
+    :param execution_date: The date of execution, used for keeping track of data ingestion.
+    :return: None
+    """
     url = "https://api.coingecko.com/api/v3/exchanges?per_page=50&page=1"
+    logging.info(f"Fetching CoinGecko Exchanges at {url}")
     response = requests.get(url, headers=API_HEADERS)
     os.makedirs(f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}", exist_ok=True)
     with open(f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}/exchanges.json", "w") as f:
         json.dump(response.json(), f)
 
 def get_shared_makets(execution_date):
+    """
+    Fetches shared markets from the CoinGecko API for exchanges that have markets that match Bitso sample list.
+    Saves the results to a JSON file.
+    :param execution_date: The date of execution, used for keeping track of data ingestion.
+    :return: None
+    """
     with open(f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}/exchanges.json") as f:
         exchanges = json.load(f)
     shared_markets_list = []
     for exchange in exchanges:
-        logging.info(f"Processing exchange: {exchange['id']}")
         tickers_url = f"https://api.coingecko.com/api/v3/exchanges/{exchange['id']}/tickers"
+        logging.info(f"Fetching tickers for exchange {exchange['id']} at {tickers_url}")
         tickers_response = requests.get(tickers_url, headers=API_HEADERS)
         if tickers_response.status_code != 200:
             logging.error(f"Failed to fetch tickers for exchange {exchange['id']}: {tickers_response.status_code}")
@@ -48,11 +60,17 @@ def get_shared_makets(execution_date):
         json.dump(shared_markets_list, f)
 
 def get_exchange_30day_volume(execution_date):
+    """
+    Fetches 30-day volume data for each exchange from the CoinGecko API and saves it to a JSON file.
+    :param execution_date: The date of execution, used for keeping track of data ingestion.
+    :return: None
+    """
     with open(f"{RAW_OUTPUT_PATH}/exchanges/date_ingested={execution_date}/exchanges.json") as f:
         exchanges = json.load(f)
     results = []
     for exchange in exchanges:
         url = f"https://api.coingecko.com/api/v3/exchanges/{exchange['id']}/volume_chart?days=30"
+        logging.info(f"Fetching 30-day volume chart for exchange {exchange['id']} at {url}")
         resp = requests.get(url, headers=API_HEADERS)
         if resp.status_code != 200:
             logging.error(f"Failed to fetch volume chart for exchange {exchange['id']}: {resp.status_code}")
@@ -68,9 +86,14 @@ def get_exchange_30day_volume(execution_date):
         json.dump(results, f)
 
 def get_market_30day_volume(execution_date):
+    """
+    Fetches 30-day market volume data for each unique market from the shared markets JSON file.
+    Saves the results to a JSON file.
+    :param execution_date: The date of execution, used for keeping track of data ingestion.
+    :return: None
+    """
     with open(f"{RAW_OUTPUT_PATH}/shared_markets/date_ingested={execution_date}/shared_markets.json") as f:
         markets = json.load(f)
-        print(markets)
 
     unique_markets = {
         (market.get("base"), market.get("target"), market.get("coin_id"))
@@ -80,6 +103,7 @@ def get_market_30day_volume(execution_date):
     results = []
     for base, target, coin_id in unique_markets:
         url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart?vs_currency={target}&days=30&interval=daily"
+        logging.info(f"Fetching 30-day market chart for {base}/{target} at {url}")
         resp = requests.get(url, headers=API_HEADERS)
         results.append({
             "market_id": f"{base}_{target}",

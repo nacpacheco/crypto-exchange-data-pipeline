@@ -40,7 +40,7 @@ Run the following command to start the Airflow and Jupyter services:
 
 This command will set up the following services:
 - **Airflow Webserver:** Accessible at `http://localhost:8080` with username `admin` and password `admin`.
-- **Jupyter Notebook:** Accessible at `http://localhost:8888/lab?token=admintoken`
+- **Jupyter Notebook:** Accessible at `http://localhost:8899/lab?token=admintoken`
 - **PostgreSQL Database:** Used by Airflow to store metadata.
 
 3. **Verify the services are running:**
@@ -52,7 +52,7 @@ This command should show the status of the services as "Up".
 4. **Access the services:**
    - Airflow: Open your browser and go to `http://localhost:8080`
      - You can log in with the username `admin` and password `admin`.
-   - Jupyter: Open your browser and go to `http://localhost:8888/lab?token=admintoken`
+   - Jupyter: Open your browser and go to `http://localhost:8899/lab?token=admintoken`
 
 ## Running the Pipeline
 
@@ -63,10 +63,12 @@ The Airflow DAGs code are located in the `dags/` directory.
      - The `crypto_processing` DAG will be triggered by the completion of the `crypto_ingestion` DAG
      - You can also check the logs of each task to monitor the execution and debug any issues.
 
+Total execution time for both DAGs is approximately 5 minutes, depending on the data volume and network conditions.
+
 ## Performing Analysis
 After the DAGs have run and data has been ingested and processed, you can use the **Jupyter notebooks** to explore and analyze the data.
 
-Accessing the Jupyter UI at http://localhost:8888/lab?token=admintoken you can check the notebook located in the `work/` directory on the Jupyter interface,
+Accessing the Jupyter UI at http://localhost:8899/lab?token=admintoken you can check the notebook located in the `work/` directory on the Jupyter interface,
 this corresponds to the `analysis/` directory in the project root.
    - The notebook for this project `crypto_data_analysis.ipynb` contains code for data exploration and analysis.
    - You can explore the data and perform analysis using the provided notebook
@@ -94,4 +96,3 @@ To run the unit tests for the DAGs, you can follow these steps:
 ```bash
     python -m pytest tests/
 ```
-

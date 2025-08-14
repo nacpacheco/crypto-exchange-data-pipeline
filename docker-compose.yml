@@ -49,7 +49,7 @@ services:
   jupyter:
     image: jupyter/datascience-notebook:latest
     ports:
-      - "8888:8888"
+      - "8899:8888"
     volumes:
       - ./data:/home/jovyan/data
       - ./analysis:/home/jovyan/work
